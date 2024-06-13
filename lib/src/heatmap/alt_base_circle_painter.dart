@@ -2,9 +2,9 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart' hide Image;
 
 class AltBaseCirclePainter extends CustomPainter {
-
   /// radius of the circle to be painted
   final double radius;
+
   /// radius of the gradient applied to the painted circle
   final double blurFactor;
 
@@ -12,12 +12,11 @@ class AltBaseCirclePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final _width = size.width;
-    final _height = size.height;
+    final width = size.width;
+    final height = size.height;
     final r2 = radius;
 
-    final rect = Rect.fromPoints(Offset(_width / 2 - r2, _height / 2 - r2),
-        Offset(_width / 2 + r2, _height / 2 + r2));
+    final rect = Rect.fromPoints(Offset(width / 2 - r2, height / 2 - r2), Offset(width / 2 + r2, height / 2 + r2));
 
     var pointPaint = Paint()..color = Colors.black;
 

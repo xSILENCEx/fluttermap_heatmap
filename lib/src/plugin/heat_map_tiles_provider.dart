@@ -15,23 +15,24 @@ class HeatMapTilesProvider extends TileProvider {
 
   late Map<double, List<DataPoint>> griddedData;
 
-  HeatMapTilesProvider(
-      {required this.dataSource, required this.heatMapOptions});
+  HeatMapTilesProvider({required this.dataSource, required this.heatMapOptions});
 
   @override
   ImageProvider getImage(TileCoordinates coordinates, TileLayer options) {
     var tileSize = options.tileSize;
 
     // disable zoom level 0 for now. ned to refactor _filterData
-    List<DataPoint> filteredData =
-        coordinates.z != 0 ? _filterData(coordinates, options) : [];
+    List<DataPoint> filteredData = coordinates.z != 0 ? _filterData(coordinates, options) : [];
     var scale = coordinates.z / 22 * 1.22;
     final radius = heatMapOptions.radius * scale;
     var imageHMOptions = HeatMapOptions(
       radius: radius,
       minOpacity: heatMapOptions.minOpacity,
+      blurFactor: heatMapOptions.blurFactor,
+      layerOpacity: heatMapOptions.layerOpacity,
       gradient: heatMapOptions.gradient,
     );
+
     return HeatMapImage(filteredData, imageHMOptions, tileSize);
   }
 
@@ -57,19 +58,16 @@ class HeatMapTilesProvider extends TileProvider {
     final gridSize = size + gridOffset;
 
     var gridLength = (gridSize / cellSize).ceil() + 2 + gridOffset.ceil();
-    List<List<DataPoint?>> grid =
-        List<List<DataPoint?>>.filled(gridLength, [], growable: true);
+    List<List<DataPoint?>> grid = List<List<DataPoint?>>.filled(gridLength, [], growable: true);
 
     const crs = Epsg3857();
 
     var localMin = 0.0;
     var localMax = 0.0;
-    Point<double> tileOffset =
-        Point(options.tileSize * coords.x, options.tileSize * coords.y);
+    Point<double> tileOffset = Point(options.tileSize * coords.x, options.tileSize * coords.y);
     for (final point in points) {
       if (bounds.contains(point.latLng)) {
-        var pixel =
-            crs.latLngToPoint(point.latLng, zoom.toDouble()) - tileOffset;
+        var pixel = crs.latLngToPoint(point.latLng, zoom.toDouble()) - tileOffset;
 
         final x = ((pixel.x) ~/ cellSize) + 2 + gridOffset.ceil();
         final y = ((pixel.y) ~/ cellSize) + 2 + gridOffset.ceil();
@@ -77,8 +75,9 @@ class HeatMapTilesProvider extends TileProvider {
         var alt = point.intensity;
         final k = alt * v;
 
-        grid[y] = grid[y]
-          ..length = (gridSize / cellSize).ceil() + 2 + gridOffset.ceil();
+        // print('k:$k');
+
+        grid[y] = grid[y]..length = (gridSize / cellSize).ceil() + 2 + gridOffset.ceil();
         var cell = grid[y][x];
 
         if (cell == null) {
@@ -102,10 +101,8 @@ class HeatMapTilesProvider extends TileProvider {
   /// extract bounds from tile coordinates. An optional [buffer] can be passed to expand the bounds
   /// to include a buffer. eg. a buffer of 0.5 would add a half tile buffer to all sides of the bounds.
   LatLngBounds _bounds(TileCoordinates coords, [double buffer = 0]) {
-    var sw = LatLng(tile2Lat(coords.y + 1 + buffer, coords.z),
-        tile2Lon(coords.x - buffer, coords.z));
-    var ne = LatLng(tile2Lat(coords.y - buffer, coords.z),
-        tile2Lon(coords.x + 1 + buffer, coords.z));
+    var sw = LatLng(tile2Lat(coords.y + 1 + buffer, coords.z), tile2Lon(coords.x - buffer, coords.z));
+    var ne = LatLng(tile2Lat(coords.y - buffer, coords.z), tile2Lon(coords.x + 1 + buffer, coords.z));
     return LatLngBounds(sw, ne);
   }
 
@@ -117,9 +114,7 @@ class HeatMapTilesProvider extends TileProvider {
     var latRad = math.atan(_sinh(math.pi * (1 - 2 * yBounded / n)));
     var latDeg = latRad * 180 / math.pi;
     //keep the point in the world
-    return latDeg > 0
-        ? math.min(latDeg, 90).toDouble()
-        : math.max(latDeg, -90).toDouble();
+    return latDeg > 0 ? math.min(latDeg, 90).toDouble() : math.max(latDeg, -90).toDouble();
   }
 
   /// converts the tile x to longitude. if the longitude is out of range then it is adjusted to the
@@ -127,9 +122,7 @@ class HeatMapTilesProvider extends TileProvider {
   double tile2Lon(num x, num z) {
     var xBounded = math.max(x, 0);
     var lonDeg = xBounded / math.pow(2.0, z) * 360 - 180;
-    return lonDeg > 0
-        ? math.min(lonDeg, 180).toDouble()
-        : math.max(lonDeg, -180).toDouble();
+    return lonDeg > 0 ? math.min(lonDeg, 180).toDouble() : math.max(lonDeg, -180).toDouble();
   }
 }
 

@@ -22,9 +22,7 @@ class HeatMapLayer extends StatefulWidget {
       : heatMapOptions = heatMapOptions ?? HeatMapOptions();
 
   @override
-  State<StatefulWidget> createState() {
-    return _HeatMapLayerState();
-  }
+  State<StatefulWidget> createState() => _HeatMapLayerState();
 }
 
 class _HeatMapLayerState extends State<HeatMapLayer> {
@@ -63,14 +61,12 @@ class _HeatMapLayerState extends State<HeatMapLayer> {
     return Opacity(
       opacity: widget.heatMapOptions.layerOpacity,
       child: TileLayer(
-          backgroundColor: Colors.transparent,
-          tileSize: 256,
-          maxZoom: widget.maxZoom,
-          urlTemplate: pseudoUrl,
-          tileDisplay: widget.tileDisplay,
-          tileProvider: HeatMapTilesProvider(
-              heatMapOptions: widget.heatMapOptions,
-              dataSource: widget.heatMapDataSource)),
+        tileSize: 256,
+        maxZoom: widget.maxZoom,
+        urlTemplate: pseudoUrl,
+        tileDisplay: widget.tileDisplay,
+        tileProvider: HeatMapTilesProvider(heatMapOptions: widget.heatMapOptions, dataSource: widget.heatMapDataSource),
+      ),
     );
   }
 }
