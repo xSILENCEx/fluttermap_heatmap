@@ -14,10 +14,8 @@ class WeightedLatLng {
 
   /// merge weighted lat long value the current WeightedLatLng,
   void merge(double x, double y, double intensity) {
-    var newX = (x * intensity + latLng.longitude * this.intensity) /
-        (intensity + this.intensity);
-    var newY = (y * intensity + latLng.latitude * this.intensity) /
-        (intensity + this.intensity);
+    final double newX = (x * intensity + latLng.longitude * this.intensity) / (intensity + this.intensity);
+    final double newY = (y * intensity + latLng.latitude * this.intensity) / (intensity + this.intensity);
     latLng = LatLng(newY, newX);
     this.intensity += intensity;
   }

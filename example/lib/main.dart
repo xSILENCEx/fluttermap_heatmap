@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -38,10 +37,16 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   StreamController<void> _rebuildStream = StreamController.broadcast();
   List<WeightedLatLng> data = [];
-  List<Map<double, MaterialColor>> gradients = [
-    HeatMapOptions.defaultGradient,
-    {0.25: Colors.blue, 0.55: Colors.red, 0.85: Colors.pink, 1.0: Colors.purple}
-  ];
+  List<Map<double, Color>> get gradients => [
+        HeatMapOptions.defaultGradient,
+        {
+          0.25: Colors.green,
+          0.5: Colors.green,
+          0.55: Color(0xffFA7F01),
+          0.85: Color(0xffF80701),
+          1.0: Color(0xff8B0200),
+        }
+      ];
 
   var index = 0;
 
@@ -61,13 +66,13 @@ class _MyHomePageState extends State<MyHomePage> {
     var str = await rootBundle.loadString('assets/initial_data.json');
     List<dynamic> result = jsonDecode(str);
 
-    final Random random = Random();
+    // final Random random = Random();
 
     setState(() {
       data = result
           .map((e) => e as List<dynamic>)
           .map(
-            (e) => WeightedLatLng(LatLng(e[0], e[1]), random.nextDouble()),
+            (e) => WeightedLatLng(LatLng(e[0], e[1]), 0.5),
           )
           .toList();
     });
@@ -75,7 +80,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _incrementCounter() {
     setState(() {
-      index = index == 0 ? 1 : 0;
+      index = index + 1;
+
+      if (index >= gradients.length) {
+        index = 0;
+      }
+
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         _rebuildStream.add(null);
       });
@@ -84,10 +94,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _rebuildStream.add(null);
-    });
-
     final map = new FlutterMap(
       options: new MapOptions(
         initialCenter: new LatLng(57.8827, -6.0400),
@@ -129,10 +135,11 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         if (data.isNotEmpty)
           HeatMapLayer(
+            maxZoom: 18,
             heatMapDataSource: InMemoryHeatMapDataSource(data: data),
             heatMapOptions: HeatMapOptions(
               gradient: this.gradients[this.index],
-              layerOpacity: 1,
+              radius: 40,
             ),
             reset: _rebuildStream.stream,
           )
@@ -143,11 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       backgroundColor: Colors.pink,
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Container(child: map),
-      ),
+      body: Center(child: Container(child: map)),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Switch Gradient',

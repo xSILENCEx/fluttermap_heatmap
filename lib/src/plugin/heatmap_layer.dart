@@ -5,21 +5,20 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_heatmap/flutter_map_heatmap.dart';
 
 class HeatMapLayer extends StatefulWidget {
+  HeatMapLayer(
+      {super.key,
+      HeatMapOptions? heatMapOptions,
+      required this.heatMapDataSource,
+      this.reset,
+      this.tileDisplay = const TileDisplay.fadeIn(),
+      this.maxZoom = 18.0})
+      : heatMapOptions = heatMapOptions ?? HeatMapOptions();
+
   final HeatMapOptions heatMapOptions;
   final HeatMapDataSource heatMapDataSource;
   final Stream<void>? reset;
   final TileDisplay tileDisplay;
   final double maxZoom;
-
-  HeatMapLayer(
-      {super.key,
-      HeatMapOptions? heatMapOptions,
-      required this.heatMapDataSource,
-      List<WeightedLatLng>? initialData,
-      this.reset,
-      this.tileDisplay = const TileDisplay.fadeIn(),
-      this.maxZoom = 18.0})
-      : heatMapOptions = heatMapOptions ?? HeatMapOptions();
 
   @override
   State<StatefulWidget> createState() => _HeatMapLayerState();
@@ -37,7 +36,7 @@ class _HeatMapLayerState extends State<HeatMapLayer> {
     _regenerateUrl();
 
     if (widget.reset != null) {
-      _resetSub = widget.reset?.listen((event) {
+      _resetSub = widget.reset?.listen((_) {
         setState(() {
           _regenerateUrl();
         });
@@ -61,7 +60,6 @@ class _HeatMapLayerState extends State<HeatMapLayer> {
     return Opacity(
       opacity: widget.heatMapOptions.layerOpacity,
       child: TileLayer(
-        tileSize: 256,
         maxZoom: widget.maxZoom,
         urlTemplate: pseudoUrl,
         tileDisplay: widget.tileDisplay,

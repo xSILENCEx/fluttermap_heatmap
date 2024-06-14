@@ -5,13 +5,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_map_heatmap/flutter_map_heatmap.dart';
 
 class HeatMapPaint extends StatefulWidget {
+  const HeatMapPaint({Key? key, required this.options, required this.width, required this.height, required this.data})
+      : super(key: key);
+
   final HeatMapOptions options;
   final double width;
   final double height;
   final List<DataPoint> data;
-
-  const HeatMapPaint({Key? key, required this.options, required this.width, required this.height, required this.data})
-      : super(key: key);
 
   @override
   State createState() => _HeatMapPaintState();
@@ -26,61 +26,61 @@ class _HeatMapPaintState extends State<HeatMapPaint> {
   Future<void> get onReady => ready.future;
 
   @override
-  initState() {
+  void initState() {
     super.initState();
 
     _initHeatmap();
   }
 
-  _initColorPalette() async {
-    List<double> stops = [];
-    List<Color> colors = [];
+  Future<ByteData?> _initColorPalette() async {
+    final List<double> stops = <double>[];
+    final List<Color> colors = <ui.Color>[];
 
-    for (final entry in widget.options.gradient.entries) {
+    for (final MapEntry<double, ui.Color> entry in widget.options.gradient.entries) {
       colors.add(entry.value);
       stops.add(entry.key);
     }
-    Gradient colorGradient = LinearGradient(colors: colors, stops: stops);
-    var pallateRect = const Rect.fromLTRB(0, 0, 256, 1);
-    var shader = colorGradient.createShader(pallateRect, textDirection: TextDirection.ltr);
-    final recorder = ui.PictureRecorder();
-    final canvas = Canvas(recorder, pallateRect);
-    Paint palettePaint = Paint()..shader = shader;
+    final Gradient colorGradient = LinearGradient(colors: colors, stops: stops);
+    const ui.Rect pallateRect = Rect.fromLTRB(0, 0, 256, 1);
+    final ui.Shader shader = colorGradient.createShader(pallateRect, textDirection: TextDirection.ltr);
+    final ui.PictureRecorder recorder = ui.PictureRecorder();
+    final ui.Canvas canvas = Canvas(recorder, pallateRect);
+    final Paint palettePaint = Paint()..shader = shader;
     canvas.drawRect(pallateRect, palettePaint);
-    final picture = recorder.endRecording();
-    var image = await picture.toImage(256, 1);
-    return await image.toByteData();
+    final ui.Picture picture = recorder.endRecording();
+    final ui.Image image = await picture.toImage(256, 1);
+    return image.toByteData();
   }
 
   // initialize the palette and image
-  _initHeatmap() async {
-    var colorPalette = await _initColorPalette();
-    final radius = widget.options.radius;
+  Future<void> _initHeatmap() async {
+    final ByteData? colorPalette = await _initColorPalette();
+    final double radius = widget.options.radius;
 
-    final recorder = ui.PictureRecorder();
-    final canvas = Canvas(recorder);
-    final baseCirclePainter = AltBaseCirclePainter(radius: radius);
-    Size size = Size.fromRadius(radius);
+    final ui.PictureRecorder recorder = ui.PictureRecorder();
+    final ui.Canvas canvas = Canvas(recorder);
+    final AltBaseCirclePainter baseCirclePainter = AltBaseCirclePainter(radius: radius);
+    final Size size = Size.fromRadius(radius);
     baseCirclePainter.paint(canvas, size);
-    final picture = recorder.endRecording();
-    final image = await picture.toImage(radius.round() * 2, radius.round() * 2);
+    final ui.Picture picture = recorder.endRecording();
+    final ui.Image image = await picture.toImage(radius.round() * 2, radius.round() * 2);
     setState(() {
-      _palette = colorPalette;
+      _palette = colorPalette!;
       _baseImage = image;
       ready.complete();
     });
   }
 
-  _colorize(ui.Image baseCircle) async {
+  Future<void> _colorize(ui.Image baseCircle) async {
     if (ready.isCompleted) {
-      final recorder = ui.PictureRecorder();
-      final canvas = Canvas(recorder);
-      final painter = GrayScaleHeatMapPainter(baseCircle: baseCircle, data: widget.data);
+      final ui.PictureRecorder recorder = ui.PictureRecorder();
+      final ui.Canvas canvas = Canvas(recorder);
+      final GrayScaleHeatMapPainter painter = GrayScaleHeatMapPainter(baseCircle: baseCircle, data: widget.data);
       painter.paint(canvas, Size(widget.width, widget.height));
-      final image = await recorder.endRecording().toImage(widget.width.toInt(), widget.height.toInt());
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+      final ui.Image image = await recorder.endRecording().toImage(widget.width.toInt(), widget.height.toInt());
+      final ByteData? byteData = await image.toByteData();
 
-      for (var i = 0, len = byteData!.lengthInBytes, j = 0; i < len; i += 4) {
+      for (int i = 0, len = byteData!.lengthInBytes, j = 0; i < len; i += 4) {
         j = byteData.getUint8(i + 3) * 4;
         if (i < 40) {}
         if (j > 0) {
@@ -92,7 +92,8 @@ class _HeatMapPaintState extends State<HeatMapPaint> {
         if (i < 40) {}
       }
 
-      final headered = Bitmap.fromHeadless(image.width, image.height, byteData.buffer.asUint8List()).buildHeaded();
+      final Uint8List headered =
+          Bitmap.fromHeadless(image.width, image.height, byteData.buffer.asUint8List()).buildHeaded();
 
       setState(() {
         _heatmap = headered;
@@ -109,20 +110,20 @@ class _HeatMapPaintState extends State<HeatMapPaint> {
   @override
   Widget build(BuildContext context) {
     return Stack(
-      children: [Positioned(top: 0, left: 0, child: Image.memory(_heatmap))],
+      children: <Widget>[Positioned(top: 0, left: 0, child: Image.memory(_heatmap))],
     );
   }
 }
 
 class HeatMapPainter extends CustomPainter {
-  final ui.Image heatMapImage;
+  const HeatMapPainter(this.heatMapImage);
 
-  HeatMapPainter(this.heatMapImage);
+  final ui.Image heatMapImage;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint();
-    canvas.drawImage(heatMapImage, const Offset(0, 0), paint);
+    final ui.Paint paint = Paint();
+    canvas.drawImage(heatMapImage, Offset.zero, paint);
   }
 
   @override
@@ -132,13 +133,13 @@ class HeatMapPainter extends CustomPainter {
 }
 
 class HeatMapState {
+  HeatMapState(this.options) {
+    imageSink = StreamController<ui.Image>.broadcast();
+  }
+
   final HeatMapOptions options;
 
   StreamController<ui.Image>? imageSink;
-
-  HeatMapState(this.options) {
-    imageSink = StreamController.broadcast();
-  }
 
   void dispose() {
     imageSink?.close();

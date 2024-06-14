@@ -24,8 +24,8 @@ class Bitmap {
   }
 
   Future<ui.Image> buildImage() async {
-    final Completer<ui.Image> imageCompleter = Completer();
-    final headedContent = buildHeaded();
+    final Completer<ui.Image> imageCompleter = Completer<ui.Image>();
+    final Uint8List headedContent = buildHeaded();
     ui.decodeImageFromList(headedContent, (ui.Image img) {
       imageCompleter.complete(img);
     });
@@ -33,15 +33,12 @@ class Bitmap {
   }
 
   Uint8List buildHeaded() {
-    final header = RGBA32BitmapHeader(size, width, height)
-      ..applyContent(content);
+    final RGBA32BitmapHeader header = RGBA32BitmapHeader(size, width, height)..applyContent(content);
     return header.headerIntList;
   }
 }
 
 class RGBA32BitmapHeader {
-  late Uint8List headerIntList;
-
   RGBA32BitmapHeader(this.contentSize, int width, int height) {
     headerIntList = Uint8List(fileLength);
 
@@ -62,6 +59,7 @@ class RGBA32BitmapHeader {
     bd.setUint32(0x3e, 0x00ff0000, Endian.little);
     bd.setUint32(0x42, 0xff000000, Endian.little);
   }
+  late Uint8List headerIntList;
 
   int contentSize;
 
