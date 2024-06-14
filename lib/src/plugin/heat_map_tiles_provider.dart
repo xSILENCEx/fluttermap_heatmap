@@ -23,10 +23,7 @@ class HeatMapTilesProvider extends TileProvider {
 
     // disable zoom level 0 for now. ned to refactor _filterData
     final List<DataPoint> filteredData = coordinates.z != 0 ? _filterData(coordinates, options) : <DataPoint>[];
-    final double scale = coordinates.z / 22 * 1.22;
-    final double radius = heatMapOptions.radius * scale;
     final HeatMapOptions imageHMOptions = HeatMapOptions(
-      radius: radius,
       minOpacity: heatMapOptions.minOpacity,
       blurFactor: heatMapOptions.blurFactor,
       layerOpacity: heatMapOptions.layerOpacity,
@@ -79,14 +76,14 @@ class HeatMapTilesProvider extends TileProvider {
         DataPoint? cell = grid[y][x];
 
         if (cell == null) {
-          grid[y][x] = DataPoint(pixel.x, pixel.y, k);
+          grid[y][x] = DataPoint(pixel.x, pixel.y, k, point.radius);
           cell = grid[y][x];
         } else {
           cell.merge(pixel.x, pixel.y, k);
         }
 
         if (bounds.contains(point.latLng)) {
-          filteredData.add(DataPoint(pixel.x, pixel.y, k));
+          filteredData.add(DataPoint(pixel.x, pixel.y, k, point.radius));
         }
       }
     }

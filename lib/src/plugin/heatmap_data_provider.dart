@@ -81,7 +81,7 @@ class GriddedHeatMapDataSource extends HeatMapDataSource {
       WeightedLatLng? cell = grid[y][x];
 
       if (cell == null) {
-        grid[y][x] = WeightedLatLng(point.latLng, 1);
+        grid[y][x] = WeightedLatLng(point.latLng, 1, point.radius);
         cell = grid[y][x];
       } else {
         cell.merge(point.latLng.longitude, point.latLng.latitude, 1);

@@ -55,15 +55,15 @@ class _HeatMapPaintState extends State<HeatMapPaint> {
   // initialize the palette and image
   Future<void> _initHeatmap() async {
     final ByteData? colorPalette = await _initColorPalette();
-    final double radius = widget.options.radius;
+    const double radius = 0;
 
     final ui.PictureRecorder recorder = ui.PictureRecorder();
     final ui.Canvas canvas = Canvas(recorder);
-    final AltBaseCirclePainter baseCirclePainter = AltBaseCirclePainter(radius: radius);
-    final Size size = Size.fromRadius(radius);
-    baseCirclePainter.paint(canvas, size);
+    const AltBaseCirclePainter baseCirclePainter = AltBaseCirclePainter(radius: radius);
+    baseCirclePainter.paint(canvas, Size.zero);
     final ui.Picture picture = recorder.endRecording();
     final ui.Image image = await picture.toImage(radius.round() * 2, radius.round() * 2);
+
     setState(() {
       _palette = colorPalette!;
       _baseImage = image;
@@ -75,7 +75,10 @@ class _HeatMapPaintState extends State<HeatMapPaint> {
     if (ready.isCompleted) {
       final ui.PictureRecorder recorder = ui.PictureRecorder();
       final ui.Canvas canvas = Canvas(recorder);
-      final GrayScaleHeatMapPainter painter = GrayScaleHeatMapPainter(baseCircle: baseCircle, data: widget.data);
+      final GrayScaleHeatMapPainter painter =
+          GrayScaleHeatMapPainter(getBaseCircle: (_) async => baseCircle, data: widget.data);
+
+      await painter.ready();
       painter.paint(canvas, Size(widget.width, widget.height));
       final ui.Image image = await recorder.endRecording().toImage(widget.width.toInt(), widget.height.toInt());
       final ByteData? byteData = await image.toByteData();

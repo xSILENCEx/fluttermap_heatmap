@@ -49,8 +49,7 @@ class HeatMap {
     ready.complete();
   }
 
-  Future<ui.Image> _getBaseShape() async {
-    final double radius = options.radius;
+  Future<ui.Image> _getBaseShape(double radius) async {
     if (_baseShapes.containsKey(radius)) {
       return _baseShapes[radius]!;
     }
@@ -67,13 +66,16 @@ class HeatMap {
     return image;
   }
 
-  Future<ui.Image> _grayscaleHeatmap(ui.Image baseCircle) async {
+  Future<ui.Image> _grayscaleHeatmap(Future<ui.Image> Function(double) getBaseCircle) async {
     final ui.PictureRecorder recorder = ui.PictureRecorder();
     final ui.Canvas canvas = Canvas(recorder);
 
     final GrayScaleHeatMapPainter painter =
-        GrayScaleHeatMapPainter(baseCircle: baseCircle, data: data, minOpacity: options.minOpacity);
-    painter.paint(canvas, Size(width + options.radius, height + options.radius));
+        GrayScaleHeatMapPainter(getBaseCircle: getBaseCircle, data: data, minOpacity: options.minOpacity);
+
+    await painter.ready();
+
+    painter.paint(canvas, Size(width, height));
 
     final ui.Picture picture = recorder.endRecording();
     final ui.Image image = await picture.toImage(width.toInt(), height.toInt());
@@ -118,9 +120,9 @@ class HeatMap {
       return kTransparentImage;
     }
     // generate shape to be used for all points on the heatmap
-    final ui.Image baseShape = await _getBaseShape();
+    // final ui.Image baseShape = await _getBaseShape();
 
-    final ui.Image grayscale = await _grayscaleHeatmap(baseShape);
+    final ui.Image grayscale = await _grayscaleHeatmap(_getBaseShape);
 
     final Uint8List heatmapBytes = await _colorize(grayscale);
 

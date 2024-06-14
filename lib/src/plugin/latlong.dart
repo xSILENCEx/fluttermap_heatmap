@@ -2,10 +2,13 @@ import 'package:latlong2/latlong.dart';
 
 /// wraps a LatLng with an intensity
 class WeightedLatLng {
-  WeightedLatLng(this.latLng, this.intensity);
+  WeightedLatLng(this.latLng, this.intensity, this.radius);
 
   LatLng latLng;
   double intensity;
+
+  /// Default radius size applied during the painting of this point.
+  double radius;
 
   @override
   String toString() {

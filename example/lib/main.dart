@@ -72,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
       data = result
           .map((e) => e as List<dynamic>)
           .map(
-            (e) => WeightedLatLng(LatLng(e[0], e[1]), 0.5),
+            (e) => WeightedLatLng(LatLng(e[0], e[1]), 0.5, 10),
           )
           .toList();
     });
@@ -139,7 +139,6 @@ class _MyHomePageState extends State<MyHomePage> {
             heatMapDataSource: InMemoryHeatMapDataSource(data: data),
             heatMapOptions: HeatMapOptions(
               gradient: this.gradients[this.index],
-              radius: 40,
             ),
             reset: _rebuildStream.stream,
           )

@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 
 class HeatMapOptions {
   HeatMapOptions(
-      {this.radius = 30,
-      this.minOpacity = 0.3,
-      double blurFactor = 0.5,
-      double layerOpacity = 0.75,
-      Map<double, Color>? gradient})
+      {this.minOpacity = 0.3, double blurFactor = 0.5, double layerOpacity = 0.75, Map<double, Color>? gradient})
       : gradient = gradient ?? defaultGradient,
         layerOpacity = layerOpacity >= 0 && layerOpacity <= 1 ? layerOpacity : 0.75,
         blurFactor = blurFactor >= 0 && blurFactor <= 1 ? blurFactor : 0.75;
@@ -19,9 +15,6 @@ class HeatMapOptions {
 
   /// Opacity of the heatmap layer when displayed on a map
   double layerOpacity;
-
-  /// Default radius size applied during the painting of each point.
-  double radius;
 
   /// Color gradient used for the heat map
   Map<double, Color> gradient;
