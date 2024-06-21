@@ -38,7 +38,7 @@ class GrayScaleHeatMapPainter extends CustomPainter {
 
     for (final DataPoint point in data) {
       final Image image = await getBaseCircle(point.r);
-      final double alpha = math.min(math.max(point.z / max!, minOpacity), 1.0);
+      final double alpha = math.min(math.max(point.z / max!, minOpacity), 1);
       final double yOffset = image.height / 2;
       final double xOffset = image.width / 2;
 

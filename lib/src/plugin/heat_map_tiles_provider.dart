@@ -70,8 +70,6 @@ class HeatMapTilesProvider extends TileProvider {
         final double alt = point.intensity;
         final double k = alt * v;
 
-        // print('k:$k');
-
         grid[y] = grid[y]..length = (gridSize / cellSize).ceil() + 2 + gridOffset.ceil();
         DataPoint? cell = grid[y][x];
 

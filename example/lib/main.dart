@@ -38,14 +38,14 @@ class _MyHomePageState extends State<MyHomePage> {
   StreamController<void> _rebuildStream = StreamController.broadcast();
   List<WeightedLatLng> data = [];
   List<Map<double, Color>> get gradients => [
-        HeatMapOptions.defaultGradient,
         {
-          0.25: Colors.green,
-          0.5: Colors.green,
-          0.55: Color(0xffFA7F01),
-          0.85: Color(0xffF80701),
-          1.0: Color(0xff8B0200),
-        }
+          0.1: Colors.green,
+          0.25: Colors.blue,
+          0.55: Colors.yellow,
+          0.85: Colors.red,
+          1.0: Colors.purple,
+        },
+        HeatMapOptions.defaultGradient,
       ];
 
   var index = 0;
@@ -66,16 +66,13 @@ class _MyHomePageState extends State<MyHomePage> {
     var str = await rootBundle.loadString('assets/initial_data.json');
     List<dynamic> result = jsonDecode(str);
 
-    // final Random random = Random();
+    data = result.map((e) => e as List<dynamic>).map(
+      (e) {
+        return WeightedLatLng(LatLng(e[0], e[1]), 1, 10);
+      },
+    ).toList();
 
-    setState(() {
-      data = result
-          .map((e) => e as List<dynamic>)
-          .map(
-            (e) => WeightedLatLng(LatLng(e[0], e[1]), 0.5, 10),
-          )
-          .toList();
-    });
+    setState(() {});
   }
 
   void _incrementCounter() {
@@ -139,6 +136,8 @@ class _MyHomePageState extends State<MyHomePage> {
             heatMapDataSource: InMemoryHeatMapDataSource(data: data),
             heatMapOptions: HeatMapOptions(
               gradient: this.gradients[this.index],
+              minOpacity: 0.1,
+              blurFactor: 10,
             ),
             reset: _rebuildStream.stream,
           )
