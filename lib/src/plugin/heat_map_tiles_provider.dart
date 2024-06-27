@@ -67,20 +67,17 @@ class HeatMapTilesProvider extends TileProvider {
         final int x = ((pixel.x) ~/ cellSize) + 2 + gridOffset.ceil();
         final int y = ((pixel.y) ~/ cellSize) + 2 + gridOffset.ceil();
 
-        final double alt = point.intensity;
-        final double k = alt * v;
+        if (x >= 0 && x < gridLength && y >= 0 && y < gridLength) {
+          // 添加边界检查
+          final double alt = point.intensity;
+          final double k = alt * v;
 
-        grid[y] = grid[y]..length = (gridSize / cellSize).ceil() + 2 + gridOffset.ceil();
-        DataPoint? cell = grid[y][x];
+          if (grid[y][x] == null) {
+            grid[y][x] = DataPoint(pixel.x, pixel.y, k, point.radius);
+          } else {
+            grid[y][x]!.merge(pixel.x, pixel.y, k);
+          }
 
-        if (cell == null) {
-          grid[y][x] = DataPoint(pixel.x, pixel.y, k, point.radius);
-          cell = grid[y][x];
-        } else {
-          cell.merge(pixel.x, pixel.y, k);
-        }
-
-        if (bounds.contains(point.latLng)) {
           filteredData.add(DataPoint(pixel.x, pixel.y, k, point.radius));
         }
       }
