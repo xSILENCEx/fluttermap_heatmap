@@ -14,10 +14,8 @@ class HeatMapTilesProvider extends TileProvider {
 
   final Crs crs;
 
-  HeatMapDataSource dataSource;
-  HeatMapOptions heatMapOptions;
-
-  late Map<double, List<DataPoint>> griddedData;
+  final HeatMapDataSource dataSource;
+  final HeatMapOptions heatMapOptions;
 
   @override
   ImageProvider getImage(TileCoordinates coordinates, TileLayer options) {
@@ -43,41 +41,20 @@ class HeatMapTilesProvider extends TileProvider {
   List<DataPoint> _filterData(TileCoordinates coords, TileLayer options) {
     final List<DataPoint> filteredData = <DataPoint>[];
     final int zoom = coords.z;
-    final double scale = coords.z / 22 * 1.22;
-    final double radius = 25 * scale;
-    final double size = options.tileSize;
     final double maxZoom = options.maxZoom;
     final LatLngBounds bounds = _bounds(coords, 1);
     final List<WeightedLatLng> points = dataSource.getData(bounds, zoom.toDouble());
     final double v = 1 / math.pow(2, math.max(0, math.min(maxZoom - zoom, 12)));
-
-    final double cellSize = radius / 2;
-
-    final double gridOffset = size;
-    final double gridSize = size + gridOffset;
-
-    final int gridLength = (gridSize / cellSize).ceil() + 2 + gridOffset.ceil();
-    final List<List<DataPoint?>> grid = List<List<DataPoint?>>.filled(gridLength, <DataPoint?>[], growable: true);
 
     final Point<double> tileOffset = Point<double>(options.tileSize * coords.x, options.tileSize * coords.y);
     for (final WeightedLatLng point in points) {
       if (bounds.contains(point.latLng)) {
         final math.Point<double> pixel = crs.latLngToPoint(point.latLng, zoom.toDouble()) - tileOffset;
 
-        final int x = ((pixel.x) ~/ cellSize) + 2 + gridOffset.ceil();
-        final int y = ((pixel.y) ~/ cellSize) + 2 + gridOffset.ceil();
+        final double alt = point.intensity;
+        final double k = alt * v;
 
-        if (x >= 0 && x < gridLength && y >= 0 && y < gridLength) {
-          // 添加边界检查
-          final double alt = point.intensity;
-          final double k = alt * v;
-
-          if (grid[y][x] == null) {
-            grid[y][x] = DataPoint(pixel.x, pixel.y, k, point.radius);
-          } else {
-            grid[y][x]!.merge(pixel.x, pixel.y, k);
-          }
-
+        if (bounds.contains(point.latLng)) {
           filteredData.add(DataPoint(pixel.x, pixel.y, k, point.radius));
         }
       }
