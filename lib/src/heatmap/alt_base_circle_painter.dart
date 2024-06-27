@@ -18,10 +18,6 @@ class AltBaseCirclePainter extends CustomPainter {
 
     final Rect rect = Rect.fromPoints(Offset(width / 2 - r2, height / 2 - r2), Offset(width / 2 + r2, height / 2 + r2));
 
-    final Paint pointPaint = Paint()..color = Colors.black;
-
-    pointPaint.strokeWidth = 4;
-
     final Shader gradient = RadialGradient(
             colors: const <Color>[Color.fromRGBO(0, 0, 0, 1), Color.fromRGBO(0, 0, 0, 0)],
             stops: const <double>[0, 1],
@@ -29,10 +25,11 @@ class AltBaseCirclePainter extends CustomPainter {
         .createShader(rect);
 
     canvas.drawPath(
-        Path()
-          ..addArc(rect, 0, math.pi * 2)
-          ..close(),
-        Paint()..shader = gradient);
+      Path()
+        ..addArc(rect, 0, math.pi * 2)
+        ..close(),
+      Paint()..shader = gradient,
+    );
   }
 
   @override

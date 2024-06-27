@@ -2,7 +2,10 @@ import 'dart:async';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_map_heatmap/flutter_map_heatmap.dart';
+import 'alt_base_circle_painter.dart';
+import 'bitmap.dart';
+import 'grayscale_map_painter.dart';
+import 'heat_map_options.dart';
 import 'transparent.dart';
 
 class HeatMap {

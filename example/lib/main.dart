@@ -38,8 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
   StreamController<void> _rebuildStream = StreamController.broadcast();
   List<WeightedLatLng> data = [];
   List<Map<double, Color>> get gradients => [
-        {
-          0.1: Colors.green,
+        <double, Color>{
           0.25: Colors.blue,
           0.55: Colors.yellow,
           0.85: Colors.red,
@@ -136,8 +135,8 @@ class _MyHomePageState extends State<MyHomePage> {
             heatMapDataSource: InMemoryHeatMapDataSource(data: data),
             heatMapOptions: HeatMapOptions(
               gradient: this.gradients[this.index],
-              minOpacity: 0.1,
-              blurFactor: 10,
+              // minOpacity: 0.1,
+              // blurFactor: 10,
             ),
             reset: _rebuildStream.stream,
           )
