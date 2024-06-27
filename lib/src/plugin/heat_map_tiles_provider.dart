@@ -10,7 +10,9 @@ import 'package:flutter_map_heatmap/flutter_map_heatmap.dart';
 import 'package:latlong2/latlong.dart';
 
 class HeatMapTilesProvider extends TileProvider {
-  HeatMapTilesProvider({required this.dataSource, required this.heatMapOptions});
+  HeatMapTilesProvider({required this.dataSource, required this.heatMapOptions, required this.crs});
+
+  final Crs crs;
 
   HeatMapDataSource dataSource;
   HeatMapOptions heatMapOptions;
@@ -56,8 +58,6 @@ class HeatMapTilesProvider extends TileProvider {
 
     final int gridLength = (gridSize / cellSize).ceil() + 2 + gridOffset.ceil();
     final List<List<DataPoint?>> grid = List<List<DataPoint?>>.filled(gridLength, <DataPoint?>[], growable: true);
-
-    const Epsg3857 crs = Epsg3857();
 
     final Point<double> tileOffset = Point<double>(options.tileSize * coords.x, options.tileSize * coords.y);
     for (final WeightedLatLng point in points) {

@@ -57,13 +57,19 @@ class _HeatMapLayerState extends State<HeatMapLayer> {
 
   @override
   Widget build(BuildContext context) {
+    final MapCamera map = MapCamera.of(context);
+
     return Opacity(
       opacity: widget.heatMapOptions.layerOpacity,
       child: TileLayer(
         maxZoom: widget.maxZoom,
         urlTemplate: pseudoUrl,
         tileDisplay: widget.tileDisplay,
-        tileProvider: HeatMapTilesProvider(heatMapOptions: widget.heatMapOptions, dataSource: widget.heatMapDataSource),
+        tileProvider: HeatMapTilesProvider(
+          heatMapOptions: widget.heatMapOptions,
+          dataSource: widget.heatMapDataSource,
+          crs: map.crs,
+        ),
       ),
     );
   }
