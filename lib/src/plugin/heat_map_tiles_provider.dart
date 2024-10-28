@@ -51,12 +51,9 @@ class HeatMapTilesProvider extends TileProvider {
       if (bounds.contains(point.latLng)) {
         final math.Point<double> pixel = crs.latLngToPoint(point.latLng, zoom.toDouble()) - tileOffset;
 
-        final double alt = point.intensity;
-        final double k = alt * v;
+        final double k = point.intensity * v;
 
-        if (bounds.contains(point.latLng)) {
-          filteredData.add(DataPoint(pixel.x, pixel.y, k, point.radius));
-        }
+        filteredData.add(DataPoint(pixel.x, pixel.y, k, point.radius));
       }
     }
 
